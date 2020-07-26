@@ -41,5 +41,8 @@ func RedirectResponse(to string) func(http.ResponseWriter, *http.Request) {
 }
 
 func IndexStub(w http.ResponseWriter, _ *http.Request) {
-	fmt.Println(w, "Redirect service. Author: Mikhail Levi. (c) 2020. ")
+	_, err := fmt.Fprintf(w, "Redirect service. Author: Mikhail Levi. (c) 2020. ")
+	if err != nil {
+		fmt.Println(err)
+	}
 }
