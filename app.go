@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strconv"
+	"strings"
 	"tiny-server-go/Application"
 )
 
@@ -36,7 +38,19 @@ func main() {
 func RedirectResponse(to string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("Redirect to: " + to)
-		http.Redirect(w, r, to, 301)
+		if strings.HasPrefix(to, "file://") {
+			filename := to[7:]
+			info, err := os.Stat(filename)
+			if !os.IsNotExist(err) && !info.IsDir() {
+				http.ServeFile(w, r, filename)
+			} else {
+				path, _ := os.Getwd()
+				w.WriteHeader(http.StatusNotFound)
+				w.Write([]byte("File not found in path: " + path + "/" + filename))
+			}
+		} else {
+			http.Redirect(w, r, to, 301)
+		}
 	}
 }
 
